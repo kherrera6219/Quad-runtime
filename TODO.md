@@ -84,8 +84,10 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 - [x] Add direct Anthropic/Claude provider client.
 - [x] Add direct Gemini provider client.
 - [x] Add provider configuration through environment variables.
+- [x] Add provider configuration health checks.
 - [ ] Add OpenAI-compatible local endpoint client.
-- [ ] Add request/response redaction controls for audit logs.
+- [x] Add basic request/response redaction controls for audit logs.
+- [ ] Add richer request/response redaction controls for nested metadata and source payloads.
 - [ ] Add token/latency metadata where providers expose it.
 - [ ] Add provider health check command.
 - [x] Add integration tests using mocked provider responses.
@@ -94,8 +96,8 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 
 - [ ] Add JSONL audit option for append-only logs.
 - [ ] Add SQLite audit store for querying runs.
-- [ ] Add audit log version field.
-- [ ] Add redaction policy for sensitive inputs.
+- [x] Add audit log version field.
+- [x] Add explicit redaction policy for sensitive inputs.
 - [ ] Add correlation IDs for application/agent integration.
 - [ ] Add runtime metrics:
   - route mode
@@ -126,7 +128,7 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 ## Documentation
 
 - [ ] Add `docs/CONFIG.md` explaining the YAML sections.
-- [ ] Add `docs/INTEGRATION.md` with concrete integration examples.
+- [x] Add `docs/INTEGRATION.md` with concrete integration examples.
 - [ ] Add `docs/PRODUCTION_HARDENING.md` for deployment standards.
 - [ ] Add `docs/AUDIT_LOGS.md` with schema examples.
 - [ ] Add troubleshooting notes for Windows, Ollama, and dependency installs.
@@ -139,11 +141,11 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 3. Ollama timeout/retry hardening.
 4. Audit logging failure handling.
 5. Stable package API and packaging metadata.
-6. Audit schema versioning.
-7. Regeneration loop.
-8. Source provider interface and manual source injection.
+6. Source provider interface and manual source injection.
+7. Provider health command in CLI.
+8. Regeneration loop.
 9. OpenAI-compatible endpoint client and provider health checks.
-10. Integration examples and release checklist.
+10. Release checklist.
 
 ## Quality Bar
 

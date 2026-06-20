@@ -7,7 +7,7 @@ import urllib.request
 from typing import Any, Protocol
 
 from quad.errors import QuadModelError
-from quad.models import GenerationResult
+from quad.models import GenerationResult, ProviderHealth
 
 DEFAULT_OPENAI_MODEL = "gpt-5.1"
 DEFAULT_ANTHROPIC_MODEL = "claude-fable-5"
@@ -20,11 +20,17 @@ class LLMClient(Protocol):
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         ...
 
+    def validate_configuration(self) -> ProviderHealth:
+        ...
+
 
 class EchoLLMClient:
     """Deterministic local client for smoke tests and offline demos."""
 
     model_name = "echo"
+
+    def validate_configuration(self) -> ProviderHealth:
+        return ProviderHealth(provider="echo", model=self.model_name, configured=True)
 
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         mode = metadata.get("mode", "normal")
@@ -50,6 +56,10 @@ class OllamaClient:
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
         self.max_retries = max_retries
+
+    def validate_configuration(self) -> ProviderHealth:
+        issues = _common_configuration_issues(self.model_name, self.base_url, self.timeout_seconds, self.max_retries)
+        return ProviderHealth(provider="ollama", model=self.model_name, configured=not issues, issues=issues)
 
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         prompt = f"System:\n{system_prompt}\n\nDeveloper:\n{metadata.get('developer_prompt', '')}\n\nUser:\n{user_prompt}"
@@ -98,6 +108,12 @@ class OpenAIResponsesClient:
         self.max_retries = max_retries
         self.max_output_tokens = max_output_tokens
 
+    def validate_configuration(self) -> ProviderHealth:
+        issues = _common_configuration_issues(self.model_name, self.base_url, self.timeout_seconds, self.max_retries)
+        if not self.api_key:
+            issues.append("OPENAI_API_KEY is required.")
+        return ProviderHealth(provider="openai", model=self.model_name, configured=not issues, issues=issues)
+
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         if not self.api_key:
             raise QuadModelError("OPENAI_API_KEY is required for the OpenAI provider.")
@@ -144,6 +160,16 @@ class AnthropicMessagesClient:
         self.max_tokens = max_tokens
         self.anthropic_version = anthropic_version
 
+    def validate_configuration(self) -> ProviderHealth:
+        issues = _common_configuration_issues(self.model_name, self.base_url, self.timeout_seconds, self.max_retries)
+        if not self.api_key:
+            issues.append("ANTHROPIC_API_KEY is required.")
+        if self.max_tokens <= 0:
+            issues.append("max_tokens must be greater than 0.")
+        if not self.anthropic_version.strip():
+            issues.append("anthropic_version must be non-empty.")
+        return ProviderHealth(provider="anthropic", model=self.model_name, configured=not issues, issues=issues)
+
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         if not self.api_key:
             raise QuadModelError("ANTHROPIC_API_KEY is required for the Anthropic provider.")
@@ -185,6 +211,12 @@ class GeminiClient:
         self.timeout_seconds = timeout_seconds
         self.max_retries = max_retries
         self.max_output_tokens = max_output_tokens
+
+    def validate_configuration(self) -> ProviderHealth:
+        issues = _common_configuration_issues(self.model_name, self.base_url, self.timeout_seconds, self.max_retries)
+        if not self.api_key:
+            issues.append("GEMINI_API_KEY or GOOGLE_API_KEY is required.")
+        return ProviderHealth(provider="gemini", model=self.model_name, configured=not issues, issues=issues)
 
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         if not self.api_key:
@@ -252,6 +284,24 @@ def _post_json(
                     f"{provider_name} request failed after {attempt + 1} attempt(s): {exc}"
                 ) from exc
     raise QuadModelError(f"{provider_name} request failed: {last_error}")
+
+
+def _common_configuration_issues(
+    model_name: str,
+    base_url: str,
+    timeout_seconds: int,
+    max_retries: int,
+) -> list[str]:
+    issues: list[str] = []
+    if not model_name.strip():
+        issues.append("model_name must be non-empty.")
+    if not base_url.startswith(("http://", "https://")):
+        issues.append("base_url must start with http:// or https://.")
+    if timeout_seconds <= 0:
+        issues.append("timeout_seconds must be greater than 0.")
+    if max_retries < 0:
+        issues.append("max_retries must be 0 or greater.")
+    return issues
 
 
 def _join_instructions(system_prompt: str, developer_prompt: str) -> str:

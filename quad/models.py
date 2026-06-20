@@ -18,6 +18,7 @@ class RuntimeRequest:
     audit_required: bool = True
     sources: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    audit_redactions: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,14 @@ class GenerationResult:
     answer: str
     model: str
     raw: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class ProviderHealth:
+    provider: str
+    model: str
+    configured: bool
+    issues: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

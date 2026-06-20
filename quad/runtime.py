@@ -8,7 +8,7 @@ from quad.config_loader import DEFAULT_CONFIG_PATH, return_config
 from quad.errors import QuadAuditLogError, QuadRoutingError
 from quad.failure_checks import run_failure_checks
 from quad.llm_client import LLMClient, client_from_name
-from quad.models import Mode, OutputProfile, RuntimeRequest, RuntimeResult
+from quad.models import Mode, OutputProfile, ProviderHealth, RuntimeRequest, RuntimeResult
 from quad.prompt_builder import build_prompt
 from quad.router import route_query
 from quad.scorer import score_answer
@@ -72,7 +72,17 @@ class QuadRuntime:
         warnings: list[str] = []
         if request.audit:
             try:
-                audit_path = str(write_audit_log(request.query, decision, tool_plan, prompt, generation, score))
+                audit_path = str(
+                    write_audit_log(
+                        request.query,
+                        decision,
+                        tool_plan,
+                        prompt,
+                        generation,
+                        score,
+                        redactions=request.audit_redactions,
+                    )
+                )
             except QuadAuditLogError as exc:
                 if request.audit_required:
                     raise
@@ -108,3 +118,6 @@ class QuadRuntime:
     def _validate_request(self, request: RuntimeRequest) -> None:
         if not isinstance(request.query, str) or not request.query.strip():
             raise QuadRoutingError("RuntimeRequest.query must be a non-empty string.")
+
+    def check_provider(self) -> ProviderHealth:
+        return self.llm_client.validate_configuration()

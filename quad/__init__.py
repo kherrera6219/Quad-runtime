@@ -10,7 +10,7 @@ from quad.errors import (
     QuadToolGroundingError,
 )
 from quad.llm_client import AnthropicMessagesClient, GeminiClient, LLMClient, OllamaClient, OpenAIResponsesClient
-from quad.models import GenerationResult, RouterDecision, RuntimeRequest, RuntimeResult, ToolPlan
+from quad.models import GenerationResult, ProviderHealth, RouterDecision, RuntimeRequest, RuntimeResult, ToolPlan
 from quad.runtime import QuadRuntime
 
 __all__ = [
@@ -20,6 +20,7 @@ __all__ = [
     "GeminiClient",
     "OllamaClient",
     "OpenAIResponsesClient",
+    "ProviderHealth",
     "QuadAuditLogError",
     "QuadConfigError",
     "QuadError",

@@ -101,6 +101,10 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - Config validation checks profile and failure-mode structure.
 - Ruff lint configuration exists.
 - CI runs lint, tests, and package build validation.
+- Provider configuration health checks exist.
+- Audit logs include `audit_schema_version`.
+- Audit logs support explicit redaction paths.
+- `docs/INTEGRATION.md` exists for package integrators.
 
 ## What Is Not Done Yet
 
@@ -110,7 +114,7 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - No generic OpenAI-compatible custom endpoint client yet.
 - No release/build workflow for a distributable package yet.
 - No SQLite audit store.
-- No redaction policy for sensitive audit content.
+- No advanced redaction policy for nested metadata/source payloads.
 
 ## Recommended Next Step
 
@@ -118,11 +122,11 @@ Continue with package API quality before adding more provider features.
 
 The next implementation batch should be:
 
-1. Add package API documentation for public exports.
-2. Add audit schema versioning.
-3. Add a `SourceProvider` protocol for host-owned retrieval.
-4. Add provider health checks.
-5. Add redaction policy for sensitive audit content.
+1. Add a `SourceProvider` protocol for host-owned retrieval.
+2. Add provider health command to the CLI.
+3. Add richer redaction policy for metadata and source payloads.
+4. Add audit integrity verification command.
+5. Add regeneration loop for low-scoring answers.
 
 This gives the system a stronger foundation before adding regeneration loops, package interfaces, or external source retrieval.
 

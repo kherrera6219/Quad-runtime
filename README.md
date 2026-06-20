@@ -244,6 +244,31 @@ Typed error classes include:
 - `QuadToolGroundingError`
 - `QuadAuditLogError`
 
+Provider configuration can be checked before generation:
+
+```python
+from quad import OpenAIResponsesClient, QuadRuntime
+
+runtime = QuadRuntime(llm_client=OpenAIResponsesClient())
+health = runtime.check_provider()
+
+if not health.configured:
+    raise RuntimeError(f"Provider is not ready: {health.issues}")
+```
+
+Audit logs include `audit_schema_version` and support explicit field redaction:
+
+```python
+from quad import RuntimeRequest, QuadRuntime
+
+result = QuadRuntime().run(
+    RuntimeRequest(
+        query="sensitive request",
+        audit_redactions=["query", "answer"],
+    )
+)
+```
+
 To use another model backend, implement the `LLMClient` protocol from `quad/llm_client.py`:
 
 ```python
@@ -399,9 +424,9 @@ Load QUAD YAML
 
 Next implementation steps:
 
-1. Add real source retrieval behind `tool_grounding.py`.
-2. Add revision and regeneration loops for low-scoring answers.
-3. Add source provider interface and manual source injection.
+1. Add source provider interface and manual source injection.
+2. Add provider health command to the CLI.
+3. Add revision and regeneration loops for low-scoring answers.
 4. Store audit logs in SQLite for querying.
-5. Add audit schema versioning and redaction.
-6. Add production packaging and release metadata.
+5. Add richer redaction policies for nested metadata and sources.
+6. Add production release checklist.

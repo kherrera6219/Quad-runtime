@@ -13,13 +13,20 @@ def main() -> int:
     parser.add_argument("--query", required=True, help="User query to answer.")
     parser.add_argument("--mode", choices=["auto", "normal", "quad"], default="auto")
     parser.add_argument("--profile", choices=["quick", "standard", "deep"], default=None)
-    parser.add_argument("--model", choices=["echo", "ollama"], default="echo")
-    parser.add_argument("--ollama-model", default="llama3.1")
+    parser.add_argument("--model", choices=["echo", "ollama", "openai", "anthropic", "claude", "gemini"], default="echo")
+    parser.add_argument("--provider-model", default=None, help="Provider-specific model name override.")
+    parser.add_argument("--ollama-model", default="llama3.1", help="Deprecated alias for Ollama model selection.")
     parser.add_argument("--no-audit", action="store_true", help="Do not write an audit log.")
     args = parser.parse_args()
 
     try:
-        runtime = QuadRuntime(llm_client=client_from_name(args.model, ollama_model=args.ollama_model))
+        runtime = QuadRuntime(
+            llm_client=client_from_name(
+                args.model,
+                ollama_model=args.ollama_model,
+                provider_model=args.provider_model,
+            )
+        )
         result = runtime.run(
             query=args.query,
             mode=args.mode,  # type: ignore[arg-type]

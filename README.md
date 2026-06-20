@@ -73,8 +73,11 @@ Current clients:
 
 - `echo`: deterministic local smoke-test client
 - `ollama`: local Ollama `/api/generate` client
+- `openai`: OpenAI Responses API client
+- `anthropic` / `claude`: Anthropic Messages API client
+- `gemini`: Gemini `generateContent` client
 
-The same interface can be extended for OpenAI-compatible local endpoints, OpenAI, Claude, Gemini, DeepSeek, or application-owned model gateways.
+The same interface can be extended for OpenAI-compatible local endpoints, DeepSeek, custom inference gateways, or application-owned model routers.
 
 ### Tool Grounding
 
@@ -141,6 +144,31 @@ Run with Ollama:
 .venv\Scripts\python.exe main.py --query "Design a framework for evaluating multi-agent reliability" --model ollama --ollama-model llama3.1
 ```
 
+Run with frontier providers:
+
+```bash
+set OPENAI_API_KEY=...
+.venv\Scripts\python.exe main.py --query "Evaluate this agent architecture" --model openai --provider-model gpt-5.1
+
+set ANTHROPIC_API_KEY=...
+.venv\Scripts\python.exe main.py --query "Evaluate this agent architecture" --model claude --provider-model claude-fable-5
+
+set GEMINI_API_KEY=...
+.venv\Scripts\python.exe main.py --query "Evaluate this agent architecture" --model gemini --provider-model gemini-3.5-pro
+```
+
+Provider model defaults can also be configured with:
+
+- `OPENAI_MODEL`
+- `ANTHROPIC_MODEL`
+- `GEMINI_MODEL`
+
+Provider base URLs can be overridden with:
+
+- `OPENAI_BASE_URL`
+- `ANTHROPIC_BASE_URL`
+- `GEMINI_BASE_URL`
+
 ## CLI Usage
 
 ```bash
@@ -149,6 +177,9 @@ Run with Ollama:
 .venv\Scripts\python.exe main.py --query "..." --mode quad
 .venv\Scripts\python.exe main.py --query "..." --profile deep
 .venv\Scripts\python.exe main.py --query "..." --model ollama
+.venv\Scripts\python.exe main.py --query "..." --model openai --provider-model gpt-5.1
+.venv\Scripts\python.exe main.py --query "..." --model claude --provider-model claude-fable-5
+.venv\Scripts\python.exe main.py --query "..." --model gemini --provider-model gemini-3.5-pro
 .venv\Scripts\python.exe main.py --query "..." --no-audit
 ```
 
@@ -329,7 +360,7 @@ quad/
   cli.py                     # Command-line interface
   config_loader.py           # YAML loading and validation
   failure_checks.py          # Rule-based output checks
-  llm_client.py              # Echo and Ollama model adapters
+  llm_client.py              # Echo, Ollama, OpenAI, Claude, and Gemini adapters
   models.py                  # Runtime dataclasses
   prompt_builder.py          # YAML-driven prompt assembly
   router.py                  # Normal vs QUAD routing
@@ -370,7 +401,7 @@ Next implementation steps:
 
 1. Add real source retrieval behind `tool_grounding.py`.
 2. Add revision and regeneration loops for low-scoring answers.
-3. Add OpenAI-compatible endpoint support.
+3. Add source provider interface and manual source injection.
 4. Store audit logs in SQLite for querying.
-5. Stabilize the public package API and provider/source interfaces.
+5. Add audit schema versioning and redaction.
 6. Add production packaging and release metadata.

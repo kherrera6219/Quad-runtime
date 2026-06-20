@@ -37,7 +37,7 @@ User query
 - `quad/prompt_builder.py`
   - Builds normal or QUAD prompts from runtime decisions and YAML sections.
 - `quad/llm_client.py`
-  - Provides `echo` and Ollama clients behind a common interface.
+  - Provides `echo`, Ollama, OpenAI, Anthropic/Claude, and Gemini clients behind a common interface.
 - `quad/failure_checks.py`
   - Checks for fake panel language, mushy compromise, unsupported authority, stale current facts, visible chain-of-thought leakage, and over-formalization.
 - `quad/scorer.py`
@@ -82,6 +82,9 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - Prompt construction exists.
 - Deterministic local model smoke test exists.
 - Ollama adapter exists.
+- OpenAI Responses API adapter exists.
+- Anthropic/Claude Messages API adapter exists.
+- Gemini `generateContent` adapter exists.
 - Tool-grounding detection exists.
 - Failure checks exist.
 - Scoring exists.
@@ -102,7 +105,7 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - No source retrieval provider.
 - No real citation enforcement beyond basic checks.
 - No regeneration loop.
-- No OpenAI-compatible model client yet.
+- No generic OpenAI-compatible custom endpoint client yet.
 - No release/build workflow for a distributable package yet.
 - No SQLite audit store.
 - No lint/format tooling yet.
@@ -110,7 +113,7 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 
 ## Recommended Next Step
 
-Continue with package API quality before adding more model providers.
+Continue with package API quality before adding more provider features.
 
 The next implementation batch should be:
 

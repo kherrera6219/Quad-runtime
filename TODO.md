@@ -11,6 +11,9 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 - [x] Build compact prompts from the YAML contract.
 - [x] Provide deterministic `echo` model client for local smoke tests.
 - [x] Provide basic Ollama client.
+- [x] Provide OpenAI Responses API client.
+- [x] Provide Anthropic/Claude Messages API client.
+- [x] Provide Gemini `generateContent` client.
 - [x] Detect when current-source/tool grounding may be required.
 - [x] Run rule-based failure checks.
 - [x] Score responses and return accept/revise/reject decisions.
@@ -76,13 +79,15 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 
 ## Model Provider Layer
 
+- [x] Add direct OpenAI provider client.
+- [x] Add direct Anthropic/Claude provider client.
+- [x] Add direct Gemini provider client.
+- [x] Add provider configuration through environment variables.
 - [ ] Add OpenAI-compatible local endpoint client.
-- [ ] Add OpenAI client behind optional dependency/config.
-- [ ] Add provider configuration through environment variables.
 - [ ] Add request/response redaction controls for audit logs.
 - [ ] Add token/latency metadata where providers expose it.
 - [ ] Add provider health check command.
-- [ ] Add integration tests using mocked provider responses.
+- [x] Add integration tests using mocked provider responses.
 
 ## Audit And Observability
 
@@ -136,7 +141,7 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 6. Audit schema versioning.
 7. Regeneration loop.
 8. Source provider interface and manual source injection.
-9. OpenAI-compatible endpoint client.
+9. OpenAI-compatible endpoint client and provider health checks.
 10. Integration examples and release checklist.
 
 ## Quality Bar

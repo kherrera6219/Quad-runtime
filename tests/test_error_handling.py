@@ -92,10 +92,10 @@ def test_write_audit_log_wraps_os_errors(tmp_path, monkeypatch):
     request = RuntimeRequest(query="Build a runtime architecture.", audit=False)
     result = runtime.run(request)
 
+    from quad.failure_checks import run_failure_checks
     from quad.prompt_builder import build_prompt
     from quad.router import route_query
     from quad.scorer import score_answer
-    from quad.failure_checks import run_failure_checks
     from quad.tool_grounding import build_tool_plan
 
     decision = route_query(request.query)

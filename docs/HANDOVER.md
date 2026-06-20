@@ -99,6 +99,8 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - Ollama client has timeout/retry diagnostics and typed model errors.
 - Audit logging wraps write failures in `QuadAuditLogError`.
 - Config validation checks profile and failure-mode structure.
+- Ruff lint configuration exists.
+- CI runs lint, tests, and package build validation.
 
 ## What Is Not Done Yet
 
@@ -108,7 +110,6 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - No generic OpenAI-compatible custom endpoint client yet.
 - No release/build workflow for a distributable package yet.
 - No SQLite audit store.
-- No lint/format tooling yet.
 - No redaction policy for sensitive audit content.
 
 ## Recommended Next Step
@@ -117,11 +118,11 @@ Continue with package API quality before adding more provider features.
 
 The next implementation batch should be:
 
-1. Add `ruff` linting and formatting configuration.
-2. Add package build validation for wheel and sdist.
-3. Add package API documentation for public exports.
-4. Add audit schema versioning.
-5. Add a `SourceProvider` protocol for host-owned retrieval.
+1. Add package API documentation for public exports.
+2. Add audit schema versioning.
+3. Add a `SourceProvider` protocol for host-owned retrieval.
+4. Add provider health checks.
+5. Add redaction policy for sensitive audit content.
 
 This gives the system a stronger foundation before adding regeneration loops, package interfaces, or external source retrieval.
 

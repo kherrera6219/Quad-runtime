@@ -9,6 +9,23 @@ description = "YAML-driven QUAD reasoning runtime with routing, scoring, failure
 requires-python = ">=3.11"
 dependencies = ["PyYAML>=6.0.1"]
 
+[tool.setuptools.packages.find]
+include = ["quad*"]
+
+[tool.setuptools.package-data]
+quad = ["quad_engine_v2_2.yaml"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]

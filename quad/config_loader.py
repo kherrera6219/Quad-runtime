@@ -13,7 +13,7 @@ except ImportError as exc:  # pragma: no cover - exercised only on missing depen
 else:
     YAML_IMPORT_ERROR = None
 
-DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "quad_engine_v2_2.yaml"
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent / "quad_engine_v2_2.yaml"
 
 REQUIRED_SECTIONS = (
     "version",

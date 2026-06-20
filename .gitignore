@@ -4,5 +4,8 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+build/
+dist/
+*.egg-info/
 logs/audit_logs/*.json
 !logs/audit_logs/.gitkeep

@@ -61,14 +61,12 @@ class OllamaClient:
             method="POST",
         )
         raw: dict[str, Any] | None = None
-        last_error: Exception | None = None
         for attempt in range(self.max_retries + 1):
             try:
                 with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
                     raw = json.loads(response.read().decode("utf-8"))
                 break
             except (TimeoutError, urllib.error.URLError, json.JSONDecodeError) as exc:
-                last_error = exc
                 if attempt >= self.max_retries:
                     raise QuadModelError(
                         f"Ollama request failed at {self.base_url} after {attempt + 1} attempt(s): {exc}"

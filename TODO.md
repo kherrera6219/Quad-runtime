@@ -42,10 +42,11 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 
 ## Next Sprint: Package API And Quality
 
-- [ ] Add `ruff` or equivalent linting and formatting config.
-- [ ] Add GitHub Actions steps for lint plus tests.
+- [x] Add `ruff` or equivalent linting and formatting config.
+- [x] Add GitHub Actions steps for lint plus tests.
+- [x] Add package build validation to GitHub Actions.
 - [ ] Add formal package API documentation for public exports.
-- [ ] Add wheel/sdist build validation.
+- [x] Add wheel/sdist build validation.
 - [ ] Add version metadata and release checklist.
 
 ## Runtime Behavior Improvements

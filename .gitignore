@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+logs/audit_logs/*.json
+!logs/audit_logs/.gitkeep

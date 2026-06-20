@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quad-runtime"
+version = "0.1.0"
+description = "YAML-driven QUAD reasoning runtime with routing, scoring, failure checks, and audit logging."
+requires-python = ">=3.11"
+dependencies = ["PyYAML>=6.0.1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

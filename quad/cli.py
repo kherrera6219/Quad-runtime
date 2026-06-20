@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import sys
 
+from quad.errors import QuadError
 from quad.llm_client import client_from_name
-from quad.models import Mode, OutputProfile
 from quad.runtime import QuadRuntime
 
 
@@ -17,13 +18,17 @@ def main() -> int:
     parser.add_argument("--no-audit", action="store_true", help="Do not write an audit log.")
     args = parser.parse_args()
 
-    runtime = QuadRuntime(llm_client=client_from_name(args.model, ollama_model=args.ollama_model))
-    result = runtime.run(
-        query=args.query,
-        mode=args.mode,  # type: ignore[arg-type]
-        profile=args.profile,  # type: ignore[arg-type]
-        audit=not args.no_audit,
-    )
+    try:
+        runtime = QuadRuntime(llm_client=client_from_name(args.model, ollama_model=args.ollama_model))
+        result = runtime.run(
+            query=args.query,
+            mode=args.mode,  # type: ignore[arg-type]
+            profile=args.profile,  # type: ignore[arg-type]
+            audit=not args.no_audit,
+        )
+    except QuadError as exc:
+        print(f"QUAD runtime error: {exc}", file=sys.stderr)
+        return 1
 
     print(f"Mode: {result.mode.upper()}")
     print(f"Profile: {result.output_profile}")
@@ -33,6 +38,8 @@ def main() -> int:
     print(f"Decision: {result.decision}")
     if result.audit_path:
         print(f"Audit log saved: {result.audit_path}")
+    for warning in result.warnings:
+        print(f"Warning: {warning}", file=sys.stderr)
     print()
     print(result.answer)
     return 0

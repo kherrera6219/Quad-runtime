@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from quad.errors import QuadAuditLogError
 from quad.models import GenerationResult, PromptBundle, RouterDecision, ScoreResult, ToolPlan
 
 DEFAULT_AUDIT_DIR = Path(__file__).resolve().parents[1] / "logs" / "audit_logs"
@@ -22,7 +23,6 @@ def write_audit_log(
     audit_dir: str | Path = DEFAULT_AUDIT_DIR,
 ) -> Path:
     output_dir = Path(audit_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     run_id = f"quad_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}"
     log: dict[str, Any] = {
@@ -45,7 +45,11 @@ def write_audit_log(
     log["audit_hash"] = _sha256(log)
 
     path = output_dir / f"{run_id}.json"
-    path.write_text(json.dumps(log, indent=2, sort_keys=True), encoding="utf-8")
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(log, indent=2, sort_keys=True), encoding="utf-8")
+    except OSError as exc:
+        raise QuadAuditLogError(f"Failed to write audit log to `{output_dir}`: {exc}") from exc
     return path
 
 

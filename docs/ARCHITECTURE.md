@@ -38,4 +38,5 @@ The current foundation provides:
 2. Add regeneration and revision loops for low-scoring answers.
 3. Add OpenAI-compatible local endpoint support.
 4. Store audit logs in SQLite for querying.
-5. Add a FastAPI web UI for local runtime inspection.
+5. Stabilize the public package API for application and agent integration.
+6. Add production packaging and release validation.

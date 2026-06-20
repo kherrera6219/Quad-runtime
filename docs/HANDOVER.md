@@ -4,9 +4,9 @@ Last updated: 2026-06-19
 
 ## Project Goal
 
-QUAD Runtime turns the QUAD v2.2 YAML reasoning contract into executable middleware for applications and agents.
+QUAD Runtime turns the QUAD v2.2 YAML reasoning contract into an embeddable Python middleware module for applications and agents.
 
-The system should sit between a user/application/agent and an LLM. It decides whether a query needs normal answering or QUAD reasoning, builds the prompt from the YAML source of truth, determines whether tool grounding is required, calls a model, checks the answer, scores it, and writes an audit log.
+The system should sit inside a host application, agent, workflow, or CLI before an LLM call. It decides whether a query needs normal answering or QUAD reasoning, builds the prompt from the YAML source of truth, determines whether tool grounding is required, calls a model, checks the answer, scores it, and writes an audit log.
 
 ## Current System Shape
 
@@ -63,7 +63,7 @@ The current test suite passed:
 
 ```text
 .venv\Scripts\python.exe -m pytest --basetemp .pytest-tmp
-8 passed
+16 passed
 ```
 
 The CLI smoke test passed with the deterministic `echo` model and wrote audit logs under:
@@ -89,35 +89,38 @@ Known environment note: on this Windows environment, pytest may warn if it canno
 - CLI exists.
 - Starter tests exist.
 - README and architecture docs exist.
+- Typed exception hierarchy exists.
+- `RuntimeRequest` exists for package integrations.
+- Public package exports are defined in `quad/__init__.py`.
+- CLI catches typed QUAD errors and returns nonzero exit codes.
+- Ollama client has timeout/retry diagnostics and typed model errors.
+- Audit logging wraps write failures in `QuadAuditLogError`.
+- Config validation checks profile and failure-mode structure.
 
 ## What Is Not Done Yet
 
-- No production-grade typed error hierarchy yet.
-- No retry/backoff behavior for model calls.
-- No full YAML schema validation.
 - No source retrieval provider.
 - No real citation enforcement beyond basic checks.
 - No regeneration loop.
 - No OpenAI-compatible model client yet.
-- No FastAPI service wrapper.
+- No release/build workflow for a distributable package yet.
 - No SQLite audit store.
-- No UI.
 - No lint/format tooling yet.
 - No redaction policy for sensitive audit content.
 
 ## Recommended Next Step
 
-Start with production-hardening before adding UI or more model providers.
+Continue with package API quality before adding more model providers.
 
 The next implementation batch should be:
 
-1. Add typed exceptions in a new `quad/errors.py`.
-2. Update `llm_client.py`, `config_loader.py`, `audit_logger.py`, and `runtime.py` to use typed errors.
-3. Add graceful CLI error handling in `quad/cli.py`.
-4. Add tests for expected failure paths.
-5. Add basic config schema validation for the YAML sections used at runtime.
+1. Add `ruff` linting and formatting configuration.
+2. Add package build validation for wheel and sdist.
+3. Add package API documentation for public exports.
+4. Add audit schema versioning.
+5. Add a `SourceProvider` protocol for host-owned retrieval.
 
-This gives the system a stronger foundation before adding regeneration loops, web APIs, or external source retrieval.
+This gives the system a stronger foundation before adding regeneration loops, package interfaces, or external source retrieval.
 
 ## Production-Hardening Notes
 
@@ -135,10 +138,10 @@ Prioritize these engineering standards:
 
 ## Integration Direction
 
-For applications:
+For host applications:
 
 ```text
-App request
+Application request
 -> QuadRuntime.run()
 -> return answer, mode, score, decision, audit_path
 ```
@@ -177,3 +180,25 @@ Do not treat QUAD as a prompt-only project. The value is the runtime boundary:
 - audit log
 
 The next code should preserve that boundary instead of folding everything into one large prompt string.
+
+## Product Direction
+
+This project should not become a standalone UI product. The correct product boundary is a production-grade Python package/module that other applications and agents import.
+
+Future work should favor:
+
+- stable public APIs
+- typed request and result objects
+- provider interfaces
+- source-provider hooks
+- configurable audit stores
+- strong error handling
+- packaging and release metadata
+- examples for integrators
+
+Future work should avoid:
+
+- app-specific UI assumptions
+- framework lock-in
+- forcing FastAPI, web servers, databases, or auth choices into the core module
+- mixing host-application concerns into the runtime package

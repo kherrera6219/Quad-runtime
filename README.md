@@ -1,6 +1,6 @@
 # QUAD Runtime
 
-QUAD Runtime is a YAML-driven reasoning middleware prototype. It turns the QUAD v2.2 instruction graph into a runnable Python system that can sit between an application, agent, or CLI and an LLM.
+QUAD Runtime is a YAML-driven reasoning middleware package. It turns the QUAD v2.2 instruction graph into an embeddable Python module that can sit inside applications, agents, workflow engines, or command-line tools before an LLM call.
 
 The goal is not to make a bigger prompt. The goal is to make reasoning behavior explicit, configurable, testable, and auditable.
 
@@ -27,7 +27,7 @@ User query
 
 ## Why This Exists
 
-Large prompts are hard to govern once they are copied across apps, agents, and workflows. QUAD Runtime keeps the reasoning policy in one YAML file and gives the application a small runtime that can enforce it.
+Large prompts are hard to govern once they are copied across apps, agents, and workflows. QUAD Runtime keeps the reasoning policy in one YAML file and gives integrators a small Python module that can enforce it.
 
 This provides several practical benefits:
 
@@ -118,7 +118,7 @@ Each audit log includes:
 - decision
 - audit hash
 
-This lets an application explain why QUAD activated and how the answer passed or failed runtime checks.
+This lets an integrating application or agent explain why QUAD activated and how the answer passed or failed runtime checks.
 
 ## Quick Start
 
@@ -169,14 +169,16 @@ Audit log saved: C:\software\Quad-runtime\logs\audit_logs\quad_20260620_060742_b
 Applications can use the runtime directly:
 
 ```python
-from quad.runtime import QuadRuntime
+from quad import QuadRuntime, RuntimeRequest
 
 runtime = QuadRuntime()
 result = runtime.run(
-    query="Design a secure architecture for an agent workflow.",
-    mode="auto",
-    profile=None,
-    audit=True,
+    RuntimeRequest(
+        query="Design a secure architecture for an agent workflow.",
+        mode="auto",
+        profile=None,
+        audit=True,
+    )
 )
 
 print(result.answer)
@@ -184,6 +186,32 @@ print(result.mode)
 print(result.score)
 print(result.audit_path)
 ```
+
+The older shorthand remains supported for simple usage:
+
+```python
+result = QuadRuntime().run("Compare two implementation paths for this agent.")
+```
+
+Production integrations should catch `QuadError` or one of its typed subclasses:
+
+```python
+from quad import QuadError, QuadRuntime
+
+try:
+    result = QuadRuntime().run("Design a secure agent workflow.")
+except QuadError as exc:
+    handle_runtime_failure(str(exc))
+```
+
+Typed error classes include:
+
+- `QuadConfigError`
+- `QuadRoutingError`
+- `QuadPromptError`
+- `QuadModelError`
+- `QuadToolGroundingError`
+- `QuadAuditLogError`
 
 To use another model backend, implement the `LLMClient` protocol from `quad/llm_client.py`:
 
@@ -210,21 +238,20 @@ runtime = QuadRuntime(llm_client=MyModelClient())
 result = runtime.run("Compare two implementation paths for this agent.")
 ```
 
-## Application Integration Patterns
+## Package Integration Patterns
 
-### Web Apps
+### Application Backends
 
-A web application can call QUAD Runtime from an API route:
+An application can call QUAD Runtime from its own backend, job worker, command handler, or service layer:
 
 ```text
-Frontend chat input
--> Backend API route
+Application request
 -> QuadRuntime.run()
--> Store answer and audit_path
--> Return answer, score, mode, and decision to UI
+-> Store or inspect answer and audit_path
+-> Return answer, score, mode, and decision through the host application
 ```
 
-Useful UI fields:
+Useful integration fields:
 
 - answer
 - mode: `normal` or `quad`
@@ -233,7 +260,7 @@ Useful UI fields:
 - tools required
 - score
 - decision
-- audit log link
+- audit path or run ID
 
 ### Agent Systems
 
@@ -286,7 +313,11 @@ Draft answer
 -> publish final output
 ```
 
-This makes it useful as middleware for agent platforms, internal assistants, support workflows, research tools, or coding copilots.
+This makes it useful as an embedded quality-control module for agent platforms, internal assistants, support workflows, research tools, coding copilots, and other LLM-backed systems.
+
+### Package Boundary
+
+The package should remain framework-neutral. Host applications should own their own API routes, queues, UI, databases, authentication, and deployment model. QUAD Runtime should provide stable Python interfaces, typed results, provider adapters, source-provider hooks, failure checks, scoring, and audit records.
 
 ## Repository Layout
 
@@ -341,4 +372,5 @@ Next implementation steps:
 2. Add revision and regeneration loops for low-scoring answers.
 3. Add OpenAI-compatible endpoint support.
 4. Store audit logs in SQLite for querying.
-5. Add a local FastAPI or web UI for inspecting runs.
+5. Stabilize the public package API and provider/source interfaces.
+6. Add production packaging and release metadata.

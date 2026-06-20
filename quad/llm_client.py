@@ -5,6 +5,7 @@ import urllib.error
 import urllib.request
 from typing import Any, Protocol
 
+from quad.errors import QuadModelError
 from quad.models import GenerationResult
 
 
@@ -33,9 +34,17 @@ class EchoLLMClient:
 
 
 class OllamaClient:
-    def __init__(self, model_name: str = "llama3.1", base_url: str = "http://localhost:11434") -> None:
+    def __init__(
+        self,
+        model_name: str = "llama3.1",
+        base_url: str = "http://localhost:11434",
+        timeout_seconds: int = 120,
+        max_retries: int = 1,
+    ) -> None:
         self.model_name = model_name
         self.base_url = base_url.rstrip("/")
+        self.timeout_seconds = timeout_seconds
+        self.max_retries = max_retries
 
     def generate(self, system_prompt: str, user_prompt: str, metadata: dict[str, Any]) -> GenerationResult:
         prompt = f"System:\n{system_prompt}\n\nDeveloper:\n{metadata.get('developer_prompt', '')}\n\nUser:\n{user_prompt}"
@@ -46,13 +55,27 @@ class OllamaClient:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        try:
-            with urllib.request.urlopen(request, timeout=120) as response:
-                raw = json.loads(response.read().decode("utf-8"))
-        except urllib.error.URLError as exc:
-            raise RuntimeError(f"Ollama request failed at {self.base_url}: {exc}") from exc
+        raw: dict[str, Any] | None = None
+        last_error: Exception | None = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                    raw = json.loads(response.read().decode("utf-8"))
+                break
+            except (TimeoutError, urllib.error.URLError, json.JSONDecodeError) as exc:
+                last_error = exc
+                if attempt >= self.max_retries:
+                    raise QuadModelError(
+                        f"Ollama request failed at {self.base_url} after {attempt + 1} attempt(s): {exc}"
+                    ) from exc
 
-        return GenerationResult(answer=raw.get("response", ""), model=self.model_name, raw=raw)
+        if raw is None:
+            raise QuadModelError(f"Ollama request failed at {self.base_url}: no response body.")
+
+        answer = raw.get("response")
+        if not isinstance(answer, str) or not answer.strip():
+            raise QuadModelError(f"Ollama returned an empty response for model `{self.model_name}`.")
+        return GenerationResult(answer=answer, model=self.model_name, raw=raw)
 
 
 def client_from_name(name: str, ollama_model: str | None = None) -> LLMClient:
@@ -60,4 +83,4 @@ def client_from_name(name: str, ollama_model: str | None = None) -> LLMClient:
         return EchoLLMClient()
     if name == "ollama":
         return OllamaClient(model_name=ollama_model or "llama3.1")
-    raise ValueError(f"Unsupported model client: {name}")
+    raise QuadModelError(f"Unsupported model client: {name}")

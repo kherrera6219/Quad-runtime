@@ -18,24 +18,32 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 - [x] Add starter tests for config, routing, checks, scoring, and runtime.
 - [x] Document architecture and integration paths.
 
-## Next Sprint: Production Hardening
+## Completed Production Hardening Slice
 
-- [ ] Add structured runtime exceptions:
+- [x] Add structured runtime exceptions:
   - `QuadConfigError`
   - `QuadRoutingError`
   - `QuadPromptError`
   - `QuadModelError`
   - `QuadToolGroundingError`
   - `QuadAuditLogError`
-- [ ] Replace broad `RuntimeError` usage in model clients with typed errors.
-- [ ] Add timeout, retry, and clear connection diagnostics for Ollama calls.
-- [ ] Validate CLI inputs before runtime execution.
-- [ ] Add graceful CLI error output with nonzero exit codes.
-- [ ] Add audit-log write failure handling so answer generation can fail closed or return a clear partial result.
-- [ ] Add config schema validation beyond required-section presence.
-- [ ] Add tests for malformed YAML, missing config, bad model client, and audit write failures.
+- [x] Replace broad `RuntimeError` usage in model clients with typed errors.
+- [x] Add timeout, retry, and clear connection diagnostics for Ollama calls.
+- [x] Validate empty runtime requests before execution.
+- [x] Add graceful CLI error output with nonzero exit codes.
+- [x] Add audit-log write failure handling so answer generation can fail closed or return a clear optional warning.
+- [x] Add config schema validation beyond required-section presence.
+- [x] Add tests for malformed YAML, missing config, bad model client, and audit write failures.
+- [x] Add `RuntimeRequest` for package integrations.
+- [x] Clean up public package exports in `quad/__init__.py`.
+
+## Next Sprint: Package API And Quality
+
 - [ ] Add `ruff` or equivalent linting and formatting config.
 - [ ] Add GitHub Actions steps for lint plus tests.
+- [ ] Add formal package API documentation for public exports.
+- [ ] Add wheel/sdist build validation.
+- [ ] Add version metadata and release checklist.
 
 ## Runtime Behavior Improvements
 
@@ -92,20 +100,22 @@ This file tracks the buildout from the current MVP into a production-grade reaso
   - retry count
 - [ ] Add audit integrity verification command.
 
-## Application And Agent Integration
+## Package, Application, And Agent Integration
 
-- [ ] Add FastAPI service wrapper.
-- [ ] Add `/run` endpoint for app integration.
-- [ ] Add `/health` endpoint.
-- [ ] Add `/audit/{run_id}` endpoint.
 - [ ] Add typed request/response schemas.
+- [ ] Stabilize public package exports from `quad/__init__.py`.
+- [ ] Add a formal `LLMClient` base protocol with documented provider behavior.
+- [ ] Add a formal `SourceProvider` protocol for host-owned retrieval.
+- [ ] Add package-level settings object for runtime configuration.
+- [ ] Add semantic versioning and release checklist.
+- [ ] Add wheel/sdist build validation.
 - [ ] Add examples:
   - CLI usage
   - Python library usage
-  - web API usage
+  - backend/service-layer usage
   - agent pre-action reasoning gate
   - RAG/source-grounded answer flow
-- [ ] Add a minimal local UI for inspecting runs.
+- [ ] Add a migration guide for integrators when public interfaces change.
 
 ## Documentation
 
@@ -121,13 +131,13 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 1. Typed error handling and CLI error behavior.
 2. Config schema validation.
 3. Ollama timeout/retry hardening.
-4. Audit logging failure handling and audit schema versioning.
-5. Regeneration loop.
-6. Source provider interface and manual source injection.
-7. OpenAI-compatible endpoint client.
-8. FastAPI wrapper.
-9. SQLite audit store.
-10. Local UI.
+4. Audit logging failure handling.
+5. Stable package API and packaging metadata.
+6. Audit schema versioning.
+7. Regeneration loop.
+8. Source provider interface and manual source injection.
+9. OpenAI-compatible endpoint client.
+10. Integration examples and release checklist.
 
 ## Quality Bar
 

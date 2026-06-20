@@ -10,6 +10,17 @@ Decision = Literal["accept", "accept_with_caveats", "revise", "reject"]
 
 
 @dataclass(frozen=True)
+class RuntimeRequest:
+    query: str
+    mode: Mode = "auto"
+    profile: OutputProfile | None = None
+    audit: bool = True
+    audit_required: bool = True
+    sources: list[dict[str, Any]] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class RouterDecision:
     mode: ResolvedMode
     activation_reasons: list[str]
@@ -65,3 +76,4 @@ class RuntimeResult:
     decision: Decision
     audit_path: str | None
     model: str
+    warnings: list[str] = field(default_factory=list)

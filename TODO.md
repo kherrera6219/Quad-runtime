@@ -136,6 +136,7 @@ This file tracks the buildout from the current MVP into a production-grade reaso
 
 ## Suggested Build Order
 
+0. Resolve production review remediation plan in `docs/PRODUCTION_REMEDIATION_PLAN.md`.
 1. Typed error handling and CLI error behavior.
 2. Config schema validation.
 3. Ollama timeout/retry hardening.
